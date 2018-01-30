@@ -29,8 +29,8 @@ export default function createUncontrollable(mixin, set) {
     )
 
     methods = utils.transform(methods, (obj, method) => {
-      obj[method] = function(...args){
-        return this.refs.inner[method](...args)
+      obj[method] = function (...args) {
+        return this.innerInstance[method](...args)
       }
     }, {})
 
@@ -58,7 +58,7 @@ export default function createUncontrollable(mixin, set) {
        * If a prop switches from controlled to Uncontrolled
        * reset its value to the defaultValue
        */
-      componentWillReceiveProps(nextProps){
+      componentWillReceiveProps(nextProps) {
         let props = this.props;
 
         if (mixin.componentWillReceiveProps) {
@@ -69,8 +69,8 @@ export default function createUncontrollable(mixin, set) {
           if (
             utils.getValue(nextProps, key) === undefined &&
             utils.getValue(props, key) !== undefined
-          ){
-             this._values[key] = nextProps[utils.defaultKey(key)]
+          ) {
+            this._values[key] = nextProps[utils.defaultKey(key)]
           }
         })
       }
@@ -80,7 +80,7 @@ export default function createUncontrollable(mixin, set) {
       }
 
       getControlledInstance() {
-        return this.refs.inner;
+        return this.innerInstance;
       }
 
       render() {
@@ -91,7 +91,7 @@ export default function createUncontrollable(mixin, set) {
           var linkPropName = utils.getLinkName(propName)
             , prop = this.props[propName];
 
-          if (linkPropName && !isProp(this.props, propName) && isProp(this.props, linkPropName) ) {
+          if (linkPropName && !isProp(this.props, propName) && isProp(this.props, linkPropName)) {
             prop = this.props[linkPropName].value
           }
 
@@ -104,7 +104,7 @@ export default function createUncontrollable(mixin, set) {
         newProps = {
           ...props,
           ...newProps,
-          ref: isCompositeComponent ? 'inner' : null
+          ref: isCompositeComponent ? (instance) => { this.innerInstance = instance } : null
         }
 
         return React.createElement(Component, newProps);
@@ -125,18 +125,18 @@ export default function createUncontrollable(mixin, set) {
 
     return component
 
-    function setAndNotify(propName, value, ...args){
+    function setAndNotify(propName, value, ...args) {
       var linkName = utils.getLinkName(propName)
-        , handler    = this.props[controlledValues[propName]];
+        , handler = this.props[controlledValues[propName]];
 
-      if ( linkName && isProp(this.props, linkName) && !handler ) {
+      if (linkName && isProp(this.props, linkName) && !handler) {
         handler = this.props[linkName].requestChange
       }
 
       set(this, propName, handler, value, args)
     }
 
-    function isProp(props, prop){
+    function isProp(props, prop) {
       return props[prop] !== undefined;
     }
 
